@@ -11,6 +11,7 @@ from datetime import timedelta
 from typing import get_args, get_origin
 
 from airalogy.assigner import DefaultAssigner
+from airalogy.ingest import import_records as import_airalogy_records
 from airalogy.markdown import extract_assigner_blocks, generate_model, parse_aimd
 from airalogy.markdown.errors import AimdParseError
 from pydantic import TypeAdapter, ValidationError, create_model
@@ -281,7 +282,11 @@ def _ensure_assigner(protocol_name: str, aimd: str | None = None) -> None:
                     f"{protocol_path}/protocol.aimd", encoding="utf-8"
                 ) as aimd_file:
                     aimd = aimd_file.read()
-            assigner_code_blocks = extract_assigner_blocks(aimd)
+            assigner_code_blocks = [
+                block.get("code", "") if isinstance(block, dict) else block
+                for block in extract_assigner_blocks(aimd)
+            ]
+            assigner_code_blocks = [block for block in assigner_code_blocks if block]
             if len(assigner_code_blocks) > 0:
                 with open(assigner_path, "w", encoding="utf-8") as out_file:
                     out_file.write("\n\n".join(assigner_code_blocks))
@@ -374,6 +379,43 @@ def validate_variables(protocol_name: str, variables: dict) -> dict:
     return data
 
 
+def import_records(protocol_name: str, params: dict) -> dict:
+    protocol_path = os.path.abspath(_validate_protocol_name(protocol_name))
+    input_filename = params.get("input_filename")
+    if not isinstance(input_filename, str) or input_filename == "":
+        raise ValueError("input_filename is required")
+
+    input_path = os.path.abspath(os.path.join(protocol_path, input_filename))
+    if not input_path.startswith(f"{protocol_path}{os.sep}"):
+        raise ValueError("input_filename must point inside the protocol package")
+    if not os.path.isfile(input_path):
+        raise ValueError("input file not found")
+
+    result = import_airalogy_records(
+        protocol_dir=protocol_path,
+        input_path=input_path,
+        input_format=params.get("input_format", "auto"),
+        allow_extra_var_fields=bool(params.get("allow_extra_var_fields", False)),
+        require_complete_quiz=bool(params.get("require_complete_quiz", False)),
+        include_template_defaults=bool(params.get("include_template_defaults", True)),
+        generate_record_ids=True,
+        validate_model_sync=bool(params.get("validate_model_sync", True)),
+        record_version=1,
+    )
+
+    return {
+        "records": result.records,
+        "errors": [
+            {
+                "row_number": error.row_number,
+                "column": error.column,
+                "message": error.message,
+            }
+            for error in result.errors
+        ],
+    }
+
+
 def main(action: str, protocol_name: str, input_params: str):
     logger.info(
         f"action: {action}, protocol_name: {protocol_name}, input_params: {input_params}"
@@ -389,6 +431,8 @@ def main(action: str, protocol_name: str, input_params: str):
                 result = assign_variable(protocol_name, params)
             elif action == "validate_variables":
                 result = validate_variables(protocol_name, params)
+            elif action == "import_records":
+                result = import_records(protocol_name, params)
             else:
                 raise ValueError(f"Unknown action: {action}")
 

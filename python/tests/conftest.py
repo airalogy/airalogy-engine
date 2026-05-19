@@ -8,8 +8,8 @@ import pytest
 from airalogy_engine import AiralogyEngine
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
-_DEFAULT_ROOTFS_PATH = str(_REPO_ROOT / "airalogy-engine-0.1")
-_DEFAULT_IMAGE = "numbcoder/airalogy-engine:0.1"
+_DEFAULT_ROOTFS_PATH = str(_REPO_ROOT / "airalogy-engine-image")
+_DEFAULT_IMAGE = "numbcoder/airalogy-engine:latest"
 
 
 def pytest_addoption(parser):

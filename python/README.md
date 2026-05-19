@@ -44,7 +44,7 @@ engine = AiralogyEngine(rootfs_path="./airalogy-engine-image")
 result = await engine.parse_protocol(protocol_path)
 ```
 
-> If neither `image` nor `rootfs_path` is provided, the engine falls back to the default remote image `numbcoder/airalogy-engine:0.1`.
+> If neither `image` nor `rootfs_path` is provided, the engine falls back to the default remote image `numbcoder/airalogy-engine:latest`.
 
 ## Usage
 
