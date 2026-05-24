@@ -7,7 +7,7 @@
 >
 > Current Python package source: <https://github.com/airalogy/airalogy/tree/main/packages/pypi/airalogy-engine>
 > Current npm package source: <https://github.com/airalogy/airalogy/tree/main/packages/npm/airalogy-engine>
-> Current engine docs: <https://github.com/airalogy/airalogy/tree/main/docs/airalogy-engine>
+> Current engine docs: <https://airalogy.github.io/airalogy/airalogy-engine/>
 
 [![PyPI version](https://img.shields.io/pypi/v/airalogy-engine?label=PyPI)](https://pypi.org/project/airalogy-engine/)
 [![npm version](https://img.shields.io/npm/v/%40airalogy%2Fairalogy-engine?label=npm)](https://www.npmjs.com/package/@airalogy/airalogy-engine)
